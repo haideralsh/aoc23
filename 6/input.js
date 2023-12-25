@@ -1,0 +1,2 @@
+export let input = `Time:        40     81     77     72
+Distance:   219   1012   1365   1089`
