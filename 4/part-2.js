@@ -1,4 +1,4 @@
-import input from "./data";
+import input from "./data"
 
 /*
 Turns this:
@@ -13,54 +13,57 @@ Into this:
 	}
 */
 let cards = input
-	.split("\n")
-	.map((line) => line.split(": "))
-	.map(([card, numbers]) => [card.match(/\d+/)[0], numbers.split(" | ")])
-	.map(([cardNumber, groups]) => [
-		cardNumber,
-		groups.map((group) => group.split(" ").filter(Boolean).map(Number)),
-	])
-	.reduce(
-		(cards, [cardNumber, groups]) => ({
-			...cards,
-			[cardNumber]: { winning: groups[0], all: groups[1] },
-		}),
-		{},
-	);
+  .split("\n")
+  .map((line) => line.split(": "))
+  .map(([card, numbers]) => [card.match(/\d+/)[0], numbers.split(" | ")])
+  .map(([cardNumber, groups]) => [
+    cardNumber,
+    groups.map((group) => group.split(" ").filter(Boolean).map(Number)),
+  ])
+  .reduce(
+    (cards, [cardNumber, groups]) => ({
+      ...cards,
+      [cardNumber]: { winning: groups[0], all: groups[1] },
+    }),
+    {},
+  )
 
 // Every card is there at least once...
-let cardCount = Object.keys(cards).reduce((counts, cardNumber) => ({ ...counts, [cardNumber]: 1}), {})
+let cardCount = Object.keys(cards).reduce(
+  (counts, cardNumber) => ({ ...counts, [cardNumber]: 1 }),
+  {},
+)
 
 // Use a look-up table to not calculate count everytime
 let winningCardsCount = {}
 
 function countWinningCards(cardNumber) {
-	if (winningCardsCount.hasOwnProperty(cardNumber)) {
-		return winningCardsCount[cardNumber]
-	}
+  if (winningCardsCount.hasOwnProperty(cardNumber)) {
+    return winningCardsCount[cardNumber]
+  }
 
-	let count = 0
-	for (let number of cards[cardNumber].all) {
-		if (cards[cardNumber].winning.includes(number)) count++;
-	}
-	winningCardsCount[cardNumber] = count
+  let count = 0
+  for (let number of cards[cardNumber].all) {
+    if (cards[cardNumber].winning.includes(number)) count++
+  }
+  winningCardsCount[cardNumber] = count
 
-	return winningCardsCount[cardNumber]
+  return winningCardsCount[cardNumber]
 }
 
 function updateCardCounts(cardNumber) {
-	let count = countWinningCards(cardNumber)
+  let count = countWinningCards(cardNumber)
 
-	for (let i = +cardNumber + 1; i <= +cardNumber + count; i++) {
-		let nextCardNumber = String(i);
+  for (let i = +cardNumber + 1; i <= +cardNumber + count; i++) {
+    let nextCardNumber = String(i)
 
-		cardCount[nextCardNumber]++;
-		updateCardCounts(nextCardNumber);
-	}
+    cardCount[nextCardNumber]++
+    updateCardCounts(nextCardNumber)
+  }
 }
 
 for (let cardNumber in cards) {
-	updateCardCounts(cardNumber);
+  updateCardCounts(cardNumber)
 }
 
 const totalCards = Object.values(cardCount).reduce((sum, v) => sum + v, 0)
